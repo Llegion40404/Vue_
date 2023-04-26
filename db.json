@@ -1,0 +1,42 @@
+{
+  "products": [
+    {
+      "name": "Ice-cream",
+      "price": 15,
+      "amount": 1,
+      "id": 1
+    },
+    {
+      "name": "Burger",
+      "price": 25,
+      "amount": 1,
+      "id": 2
+    },
+    {
+      "name": "Pizza",
+      "price": 50,
+      "amount": 1,
+      "id": 3
+    }
+  ],
+  "favorites": [
+    {
+      "name": "Ice-cream",
+      "price": 15,
+      "amount": 4,
+      "id": 1
+    },
+    {
+      "name": "Pizza",
+      "price": 50,
+      "amount": 6,
+      "id": 3
+    },
+    {
+      "name": "Burger",
+      "price": 25,
+      "amount": 2,
+      "id": 2
+    }
+  ]
+}
