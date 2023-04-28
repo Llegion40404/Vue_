@@ -9,7 +9,6 @@ const url2 = "http://localhost:3000/favorites";
 const names = ref([]);
 const onDelete = (obj) => {
   let idx = names.value.indexOf(obj.name);
-  favs.value[idx].amount = 1;
   axios.delete(url2 + "/" + obj.id);
   names.value.splice(idx, 1);
   favs.value.splice(idx, 1);
@@ -81,6 +80,7 @@ async function save() {
       <h2>Total:{{ total }}$</h2>
     </section>
   </div>
+  {{ favs }}
 </template>
 <style>
 * {
