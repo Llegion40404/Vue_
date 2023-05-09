@@ -1,175 +1,139 @@
 <script setup>
-import { computed, onMounted, ref } from "vue";
-import Fav from "./components/Fav.vue";
-import axios from "axios";
-import Modal from "./components/Modal.vue";
-("use strict");
-const url = "http://localhost:3000/products";
-const url2 = "http://localhost:3000/favorites";
-const names = ref([]);
-const onDelete = (obj) => {
-  let idx = names.value.indexOf(obj.name);
-  axios.delete(url2 + "/" + obj.id);
-  names.value.splice(idx, 1);
-  favs.value.splice(idx, 1);
-};
-let prds = ref([]);
-let favs = ref([]);
-let total = computed(() =>
-  favs.value.length >= 1
-    ? favs.value.reduce((sum, obj) => (sum += obj.price * (obj.amount || 1)), 0)
-    : 0
-);
-let message = ref("");
-onMounted(() => getData());
+import router from "./router";
 
-async function getData() {
-  const data = (await axios.get(url)).data;
-  prds.value = data;
-  const favors = (await axios.get(url2)).data;
-  favs.value = favors;
-  names.value = [];
-  favs.value.map((obj) => {
-    names.value.push(obj.name);
-  });
+function logOut() {
+  localStorage.removeItem("token");
+  location.reload();
 }
-
-async function postData(obj) {
-  if (!names.value.includes(obj.name)) {
-    names.value.push(obj.name);
-    favs.value.push(obj);
-    axios.post(url2, obj);
-  } else {
-    let idx = names.value.indexOf(obj.name);
-    favs.value[idx].amount++;
-  }
-}
-async function save() {
-  try {
-    favs.value.forEach((el) => {
-      axios.put(url2 + "/" + el.id, el);
-    });
-  } catch (er) {
-    alert(er.name);
-  }
-}
+let token = localStorage.getItem("token");
+let roles = ["admin", "moderator"];
+let show = roles.includes(token);
 </script>
 <template>
-  <div class="container">
-    <Modal :mess="message" />
-    <main class="products">
-      <h1>Products</h1>
-      <ul class="prds">
-        <li class="product" v-for="pr in prds" :key="pr.name">
-          <div>
-            <h3>{{ pr.name }}</h3>
-            <p style="margin: 5px 0">{{ pr.price }}$</p>
-          </div>
-          <button @click="postData(pr)" class="add">Add to fav</button>
-        </li>
-      </ul>
-    </main>
-    <section class="favorites">
-      <h1>Favorites</h1>
-      <ul class="favs">
-        <Fav @delete="onDelete" v-for="fav in favs" :key="fav.id" :fav="fav" />
-      </ul>
-      <button style="margin-bottom: 10px" @click="save" class="add">
-        Save
-      </button>
-      <h2>Total:{{ total }}$</h2>
-    </section>
-  </div>
-  {{ favs }}
+  <nav v-if="token">
+    <RouterLink to="/">Home page</RouterLink>
+    <RouterLink v-if="show" to="/catalogs">Catalogs</RouterLink>
+    <RouterLink v-if="token == 'admin'" to="/users">Users</RouterLink>
+    <p style="cursor: pointer" @click="logOut">Log out</p>
+  </nav>
+  <RouterView></RouterView>
 </template>
 <style>
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "roboto", sans-serif;
-  color: whitesmoke;
-  list-style-type: none;
   border-radius: 5px;
+  color: white;
+  font-family: "roboto", sans-serif;
   outline: none;
   border: none;
 }
 body {
-  background-color: rgb(37, 33, 33);
+  background-color: rgb(20, 19, 19);
 }
-button {
-  cursor: pointer;
+ul {
+  list-style-type: none;
+  display: flex;
+  gap: 25px;
 }
 .container {
-  width: 1850px;
+  padding: 40px 0;
+  width: 1700px;
   margin: 0 auto;
-  padding-top: 40px;
+}
+nav {
+  border-radius: 0;
+  padding: 20px 50px;
+  background-color: royalblue;
   display: flex;
-  align-items: flex-start;
   justify-content: space-between;
 }
-.favorites {
-  width: 700px;
-  background-color: dimgray;
-  padding: 20px;
+a {
+  text-decoration: none;
 }
-.prds {
-  padding-top: 20px;
+h1 {
+  margin-bottom: 10px;
+}
+.login {
+  background-color: rgb(153, 153, 153);
+  padding: 20px;
+  width: 30%;
+  position: absolute;
+  top: 200px;
+  left: 650px;
+}
+form {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 20px;
 }
-.product {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 15px;
-  gap: 40px;
-  background-color: lightslategray;
+input {
+  color: black;
+  padding: 5px 10px;
+  font-size: 16px;
 }
-.add {
-  background-color: darkgreen;
+button,
+select {
+  cursor: pointer;
+}
+button {
+  font-weight: bold;
+  font-size: 16px;
   padding: 10px 20px;
+  background-color: rgb(0, 140, 255);
 }
-.favs {
-  margin: 20px 0;
+select {
+  font-weight: 700;
+  padding: 5px 10px;
+  background-color: rgb(24, 148, 51);
+  margin-bottom: 20px;
+}
+.info {
+  text-align: left;
+  position: absolute;
+  bottom: 270px;
+  left: 110px;
+  height: 100px;
+  width: 400px;
+  padding: 20px;
+  background-color: white;
+}
+.user {
+  background-color: gray;
+  padding: 20px;
+}
+h3 {
+  font-weight: normal;
+}
+.user__inner {
   display: flex;
-  flex-direction: column;
+  justify-content: space-around;
+  padding-top: 20px;
+}
+.user__btn {
+  padding: 5px 10px;
+  background-color: darkslategrey;
+  font-weight: 400;
+}
+.create {
+  margin-top: 40px;
+  background-color: rgb(61, 124, 103);
+  width: 300px;
+  padding: 20px;
+}
+.save {
+  width: 270px;
+}
+.class {
+  background-color: firebrick;
+}
+.routes {
+  background-color: white;
+  padding: 5px 10px;
+  display: flex;
+  flex-wrap: wrap;
   gap: 15px;
 }
-.fav {
-  padding: 20px;
-  background-color: slategray;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.btn {
-  padding: 5px 10px;
-  color: black;
-}
-.delete {
-  padding: 10px 20px;
-  background-color: crimson;
-}
-.modal {
-  width: 400px;
-  height: 100px;
-  background-color: white;
-  padding: 20px;
-  position: absolute;
-  top: 30px;
-  right: 100px;
-}
 </style>
-
-<!-- if (er.name == "AxiosError") {
-      message.value = "e";
-      setTimeout(() => {
-        message.value = "h";
-      }, 2000);
-    } else {
-      message.value = "s";
-      setTimeout(() => {
-        message.value = "h";
-      }, 2000); -->
